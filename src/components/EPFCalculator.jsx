@@ -65,6 +65,21 @@ const EPFCalculator = ({ setCurrentPage }) => {
 
   const result = calculateEPF();
 
+  const formatFinancialValue = (amount) => {
+    const value = Math.round(amount || 0);
+
+    if (value >= 10000000) {
+      return `${(value / 10000000).toFixed(2)} Cr`; // Crores (1.25 Cr)
+    }
+    if (value >= 100000) {
+      return `${(value / 100000).toFixed(2)} L`; // Lakhs (1.50 L)
+    }
+    if (value >= 1000) {
+      return `${(value / 1000).toFixed(1)} K`; // Thousands (25.5 K)
+    }
+    return value.toLocaleString(); // Below ₹1,000 (500)
+  };
+
   return (
     <div className="p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
@@ -77,56 +92,101 @@ const EPFCalculator = ({ setCurrentPage }) => {
 
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Monthly Basic Salary</label>
                 <input
-                  type="range"
-                  min="10000"
-                  max="100000"
-                  step="1000"
+                  type="text"
+                  placeholder='Enter the Interest rate'
                   value={basicSalary}
-                  onChange={(e) => setBasicSalary(Number(e.target.value))}
-                  className="w-full"
+                  onChange={(e) => {
+                    const numValue = parseFloat(e.target.value);
+                    if (!isNaN(numValue)) {
+                      setBasicSalary(numValue);
+                    } else {
+                      setBasicSalary('');
+                    }
+                  }}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <span>₹{basicSalary.toLocaleString()}</span>
+                <span className="ml-2">₹{formatFinancialValue(basicSalary)}</span>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Employee Contribution (%)</label>
-                <input
-                  type="range"
-                  min="5"
-                  max="50"
-                  step="0.5"
-                  value={employeeContribution}
-                  onChange={(e) => setEmployeeContribution(Number(e.target.value))}
-                  className="w-full"
-                />
-                <span>{employeeContribution}%</span>
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    placeholder="Enter percentage (0-100)"
+                    value={employeeContribution}
+                    onChange={(e) => {
+                      const input = e.target.value;
+
+                      // Allow empty input or valid numbers (including decimals)
+                      if (input === '') {
+                        setEmployeeContribution('');
+                        return;
+                      }
+
+                      // Check if input is a valid number (including decimals)
+                      if (/^(\d+)?([.]\d*)?$/.test(input)) {
+                        const numValue = parseFloat(input);
+
+                        // Validate range (0-100)
+                        if (numValue >= 0 && numValue <= 100) {
+                          setEmployeeContribution(input); // Store as string to allow decimal input
+                        }
+                      }
+                    }}
+                    onBlur={() => {
+                      // When field loses focus, convert to number with 2 decimal places
+                      if (employeeContribution !== '') {
+                        const numValue = parseFloat(employeeContribution);
+                        setEmployeeContribution(numValue.toFixed(2));
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <span className="ml-2">%</span>
+                </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Employer Contribution (%)</label>
-                <input
-                  type="range"
-                  min="5"
-                  max="50"
-                  step="0.5"
-                  value={employerContribution}
-                  onChange={(e) => setEmployerContribution(Number(e.target.value))}
-                  className="w-full"
-                />
-                <span>{employerContribution}%</span>
+        
+                <label className="block text-sm font-medium mb-2">Employee Contribution (%)</label>
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    placeholder="Enter percentage (0-100)"
+                    value={employerContribution}
+                    onChange={(e) => {
+                      const input = e.target.value;
+
+                      // Allow empty input or valid numbers (including decimals)
+                      if (input === '') {
+                        setEmployerContribution('');
+                        return;
+                      }
+
+                      // Check if input is a valid number (including decimals)
+                      if (/^(\d+)?([.]\d*)?$/.test(input)) {
+                        const numValue = parseFloat(input);
+
+                        // Validate range (0-100)
+                        if (numValue >= 0 && numValue <= 100) {
+                          setEmployerContribution(input); // Store as string to allow decimal input
+                        }
+                      }
+                    }}
+                    onBlur={() => {
+                      // When field loses focus, convert to number with 2 decimal places
+                      if (employeeContribution !== '') {
+                        const numValue = parseFloat(employerContribution);
+                        setEmployerContribution(numValue.toFixed(2));
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <span className="ml-2">%</span>
+                </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Interest Rate (%)</label>
-                <input
-                  type="range"
-                  min="5"
-                  max="50"
-                  step="0.05"
-                  value={interestRate}
-                  onChange={(e) => setInterestRate(Number(e.target.value))}
-                  className="w-full"
-                />
-                <span>{interestRate}%</span>
+
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Tenure (Years)</label>
@@ -144,11 +204,11 @@ const EPFCalculator = ({ setCurrentPage }) => {
 
             <div className="mt-6 bg-blue-50 p-4 rounded">
               <h3 className="text-lg font-semibold">Total EPF Balance</h3>
-              <p className="text-2xl font-bold">₹{(result.total / 100000).toFixed(2)} Lacs</p>
+              <p className="text-2xl font-bold">₹{formatFinancialValue(result.total)}</p>
               <div className="mt-2 text-sm">
-                <p>Employee Contribution: ₹{(result.employeeContrib / 100000).toFixed(2)} Lacs</p>
-                <p>Employer Contribution: ₹{(result.employerContrib / 100000).toFixed(2)} Lacs</p>
-                <p>Interest Earned: ₹{(result.interest / 100000).toFixed(2)} Lacs</p>
+                <p>Employee Contribution: ₹{formatFinancialValue(result.employeeContrib)} </p>
+                <p>Employer Contribution: ₹{formatFinancialValue(result.employerContrib)} </p>
+                <p>Interest Earned: ₹{formatFinancialValue(result.interest)}</p>
               </div>
             </div>
 

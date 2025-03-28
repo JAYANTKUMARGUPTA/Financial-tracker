@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 const MutualFundCalculator = ({ setCurrentPage }) => {
   const [investmentType, setInvestmentType] = useState('sip'); // Toggle between SIP and Lump Sum
-  const [amount, setAmount] = useState(investmentType === 'sip' ? 5000 : 100000); // Default: 5000 for SIP, 100000 for Lump Sum
+  const [amount, setAmount] = useState(investmentType === 'sip' ? 5000 : 10000); // Default: 5000 for SIP, 100000 for Lump Sum
   const [period, setPeriod] = useState(5); // Investment period in years
   const [returns, setReturns] = useState(12); // Expected annual return rate (%)
   const [chartData, setChartData] = useState([]);
@@ -59,6 +59,24 @@ const MutualFundCalculator = ({ setCurrentPage }) => {
   }, [investmentType, amount, period, returns]);
 
   const result = calculateReturns();
+  // For the current value display
+
+  const formatFinancialValue = (value) => {
+    const num = Number(value) || 0;
+
+    if (num >= 10000000) return `${(num / 10000000).toFixed(2)} Cr`;
+    if (num >= 100000) return `${(num / 100000).toFixed(2)} L`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)} K`;
+    return num.toLocaleString();
+  };
+
+  // For min/max labels (simpler format)
+  const formatSliderValue = (value) => {
+    const num = Number(value);
+    if (num >= 100000) return `${num / 100000}L`;
+    if (num >= 1000) return `${num / 1000}K`;
+    return num;
+  };
 
   return (
     <div className="p-4 md:p-6">
@@ -96,20 +114,27 @@ const MutualFundCalculator = ({ setCurrentPage }) => {
                 <label className="block text-sm font-medium mb-2">
                   {investmentType === 'sip' ? 'Monthly Investment' : 'Investment Amount'}
                 </label>
-                <input
-                  type="range"
-                  min={investmentType === 'sip' ? 500 : 10000}
-                  max={investmentType === 'sip' ? 100000 : 1000000}
-                  step={investmentType === 'sip' ? 500 : 10000}
-                  value={amount}
-                  onChange={(e) => setAmount(Number(e.target.value))}
-                  className="w-full"
-                />
-                <span>₹{amount.toLocaleString()}</span>
+                <div >
+                  <input
+                    type="text"
+                    placeholder={`Enter ${investmentType === 'sip' ? 'Monthly Investment' : 'Investment Amount'}`}
+                    min={investmentType === 'sip' ? 500 : 10000}
+                    max={investmentType === 'sip' ? 100000 : 1000000}
+                    step={investmentType === 'sip' ? 500 : 10000}
+                    value={amount}
+                    onChange={(e) => setAmount(Number(e.target.value))}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <div className="flex justify-between text-xs text-gray-500 mt-2">
+                    <span>₹{formatSliderValue(investmentType === 'sip' ? 500 : 10000)}</span>
+                    <span>₹{formatSliderValue(investmentType === 'sip' ? 100000 : 1000000)}</span>
+                  </div>
+                </div>
+                <span className="text-lg font-medium mt-2 block">₹{formatFinancialValue(amount)}</span>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Investment Period</label>
-                <input
+                {/* <input
                   type="range"
                   min="1"
                   max="30"
@@ -117,7 +142,24 @@ const MutualFundCalculator = ({ setCurrentPage }) => {
                   onChange={(e) => setPeriod(Number(e.target.value))}
                   className="w-full"
                 />
-                <span>{period} Years</span>
+                <span>{period} Years</span> */}
+                <input
+                  type="text"
+                  placeholder="Enter the Monthly Investment"
+                  value={period}
+                  onChange={(e) => {
+                    const numValue = parseFloat(e.target.value.replace(/,/g, '')); // Remove existing commas
+                    if (!isNaN(numValue)) {
+                      setPeriod(numValue);
+                    } else {
+                      setPeriod('');
+                    }
+                  }}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <span className="ml-2 whitespace-nowrap">
+                  {period} Years
+                </span>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Expected Returns</label>
@@ -136,10 +178,10 @@ const MutualFundCalculator = ({ setCurrentPage }) => {
 
             <div className="mt-6 bg-blue-50 p-4 rounded">
               <h3 className="text-lg font-semibold">Total Value</h3>
-              <p className="text-2xl font-bold">₹{(result.total / 100000).toFixed(2)} Lacs</p>
+              <p className="text-2xl font-bold">₹{formatFinancialValue(result.total)} Lacs</p>
               <div className="mt-2 text-sm">
-                <p>Invested Amount: ₹{(result.invested / 100000).toFixed(2)} Lacs</p>
-                <p>Est. Returns: ₹{(result.returns / 100000).toFixed(2)} Lacs</p>
+                <p>Invested Amount: ₹{formatFinancialValue(result.invested)} </p>
+                <p>Est. Returns: ₹{formatFinancialValue(result.returns)}</p>
               </div>
             </div>
 

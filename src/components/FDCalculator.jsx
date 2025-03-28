@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const FDCalculator = ({ setCurrentPage }) => {
-  const [principal, setPrincipal] = useState(100000); // Default principal amount
-  const [interestRate, setInterestRate] = useState(6); // Default annual interest rate (%)
+  const [principal, setPrincipal] = useState(10000); // Default principal amount
+  const [interestRate, setInterestRate] = useState(2); // Default annual interest rate (%)
   const [tenure, setTenure] = useState(5); // Default tenure in years
   const [interestType, setInterestType] = useState('compound'); // Toggle between Simple and Compound
   const [chartData, setChartData] = useState([]);
@@ -56,6 +56,21 @@ const FDCalculator = ({ setCurrentPage }) => {
 
   const result = calculateFD();
 
+  const formatFinancialValue = (amount) => {
+    const value = Math.round(amount || 0);
+
+    if (value >= 10000000) {
+      return `${(value / 10000000).toFixed(2)} Cr`; // Crores (1.25 Cr)
+    }
+    if (value >= 100000) {
+      return `${(value / 100000).toFixed(2)} L`; // Lakhs (1.50 L)
+    }
+    if (value >= 1000) {
+      return `${(value / 1000).toFixed(1)} K`; // Thousands (25.5 K)
+    }
+    return value.toLocaleString(); // Below ₹1,000 (500)
+  };
+
   return (
     <div className="p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
@@ -84,29 +99,43 @@ const FDCalculator = ({ setCurrentPage }) => {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium mb-2">Principal Amount</label>
-                <input
-                  type="range"
-                  min="10000"
-                  max="10000000"
-                  step="10000"
-                  value={principal}
-                  onChange={(e) => setPrincipal(Number(e.target.value))}
-                  className="w-full"
-                />
-                <span>₹{principal.toLocaleString()}</span>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Interest Rate</label>
-                <input
-                  type="range"
-                  min="1"
-                  max="15"
-                  step="0.1"
-                  value={interestRate}
-                  onChange={(e) => setInterestRate(Number(e.target.value))}
-                  className="w-full"
-                />
-                <span>{interestRate}%</span>
+  
+                <label className="block text-sm font-medium mb-2">Interset Rate (%)</label>
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    placeholder="Enter percentage (0-100)"
+                    value={interestRate}
+                    onChange={(e) => {
+                      const input = e.target.value;
+
+                      // Allow empty input or valid numbers (including decimals)
+                      if (input === '') {
+                        setInterestRate('');
+                        return;
+                      }
+
+                      // Check if input is a valid number (including decimals)
+                      if (/^(\d+)?([.]\d*)?$/.test(input)) {
+                        const numValue = parseFloat(input);
+
+                        // Validate range (0-100)
+                        if (numValue >= 0 && numValue <= 100) {
+                          setInterestRate(input); // Store as string to allow decimal input
+                        }
+                      }
+                    }}
+                    onBlur={() => {
+                      // When field loses focus, convert to number with 2 decimal places
+                      if (employeeContribution !== '') {
+                        const numValue = parseFloat(interestRate);
+                        setInterestRate(numValue.toFixed(2));
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <span className="ml-2">%</span>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Tenure</label>
@@ -124,10 +153,10 @@ const FDCalculator = ({ setCurrentPage }) => {
 
             <div className="mt-6 bg-blue-50 p-4 rounded">
               <h3 className="text-lg font-semibold">Maturity Amount</h3>
-              <p className="text-2xl font-bold">₹{(result.total / 100000).toFixed(2)} Lacs</p>
+              <p className="text-2xl font-bold">₹{formatFinancialValue(result.total)}</p>
               <div className="mt-2 text-sm">
-                <p>Principal Amount: ₹{(result.principal / 100000).toFixed(2)} Lacs</p>
-                <p>Interest Earned: ₹{(result.interest / 100000).toFixed(2)} Lacs</p>
+                <p>Principal Amount: ₹{formatFinancialValue(result.principal)}</p>
+                <p>Interest Earned: ₹{formatFinancialValue(result.interest)} </p>
               </div>
             </div>
 
