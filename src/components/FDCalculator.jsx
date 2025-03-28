@@ -146,21 +146,6 @@ const FDCalculator = ({ setCurrentPage }) => {
           </div>
 
           <div className="space-y-6">
-            <div className="bg-blue-500 text-white p-4 rounded-lg">
-              <h3 className="font-semibold">Secure your savings</h3>
-              <p className="text-sm mt-2">Plan your FDs with ET Money</p>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">★</span>
-                <div>
-                  <p className="font-semibold">4.5/5</p>
-                  <p className="text-sm text-gray-600">50L+ Downloads</p>
-                </div>
-              </div>
-              <p className="mt-2 text-sm">Managing ₹20,000 Cr+ Investments</p>
-              <button className="w-full mt-4 bg-green-500 text-white py-2 rounded">Download App</button>
-            </div>
             <div className="bg-white p-4 rounded-lg shadow">
               <h3 className="font-semibold mb-4">Frequently Asked Questions</h3>
               {[
