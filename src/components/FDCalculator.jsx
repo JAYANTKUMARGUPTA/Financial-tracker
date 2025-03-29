@@ -99,7 +99,24 @@ const FDCalculator = ({ setCurrentPage }) => {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium mb-2">Principal Amount</label>
-  
+                <input
+                  type="text"
+                  placeholder="Enter the Loan Amount"
+                  value={principal}
+                  onChange={(e) => {
+                    const numValue = parseInt(e.target.value.replace(/,/g, '')); // Remove commas for parsing
+                    if (!isNaN(numValue)) {
+                      setPrincipal(numValue);
+                    } else {
+                      setPrincipal('');
+                    }
+                  }}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <span className="ml-2 whitespace-nowrap">
+                  ₹{formatFinancialValue(principal)}
+                </span>
+
                 <label className="block text-sm font-medium mb-2">Interset Rate (%)</label>
                 <div className="flex items-center">
                   <input

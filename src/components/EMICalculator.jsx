@@ -130,7 +130,7 @@ const EMICalculator = ({ setCurrentPage }) => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Loan Tenure</label>
-                <input type="range" min="1" max="30" value={loanTenure}
+                <input type="range" min="0.5" max="30" step="0.5" value={loanTenure}
                   onChange={(e) => setLoanTenure(Number(e.target.value))} className="w-full" />
                 <span>{loanTenure} Years</span>
               </div>

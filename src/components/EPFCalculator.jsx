@@ -89,7 +89,7 @@ const EPFCalculator = ({ setCurrentPage }) => {
               <h1 className="text-2xl font-bold">EPF Calculator</h1>
             </div>
             <p className="text-gray-600 mb-4">Estimate your Employee Provident Fund savings</p>
-
+            <label className="block text-sm font-medium mb-2">Amount (₹)</label>
             <div className="space-y-6">
               <div>
                 <input
@@ -194,6 +194,7 @@ const EPFCalculator = ({ setCurrentPage }) => {
                   type="range"
                   min="1"
                   max="40"
+                  step="0.5"
                   value={tenure}
                   onChange={(e) => setTenure(Number(e.target.value))}
                   className="w-full"
